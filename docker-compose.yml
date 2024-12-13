@@ -1,0 +1,43 @@
+version: '3.3'
+
+services:
+  app-db:
+    image: yobasystems/alpine-mariadb:latest
+    container_name: app-db
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+    networks:
+      app-network:
+        ipv4_address: 192.168.178.2
+    volumes:
+      - app-db-storage:/var/lib/mysql
+
+  app-srv:
+    build:
+      context: .
+      dockerfile: srv_dockerfile
+    container_name: app-srv
+    networks:
+      app-network:
+        ipv4_address: 192.168.178.3
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - app-db
+    volumes:
+      - ./app-code:/var/www/html
+      - ./apache-conf:/etc/apache2/sites-available
+      - ./php-conf:/usr/local/etc/php/
+      - ./certs:/etc/apache2/certs
+networks:
+  app-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.178.0/24
+
+volumes:
+  app-db-storage:
+    external: true
