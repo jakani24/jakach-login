@@ -61,7 +61,7 @@
 			    id INT AUTO_INCREMENT PRIMARY KEY,
 			    username VARCHAR(255) NOT NULL UNIQUE,
 			    public_key TEXT DEFAULT '',
-			    credential_id TEXT DEFAULT '',
+			    credential_id VARBINARY(64),
 			    counter INT DEFAULT 0,
 			    2fa VARCHAR(255),
 			    email VARCHAR(255),

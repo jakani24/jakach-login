@@ -20,8 +20,12 @@ COPY ./app-code /var/www/html
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+RUN mkdir -p /var/www/vendor
+RUN chown -R www-data:www-data /var/www/vendor
 # Install WebAuthn library using Composer
-RUN composer require web-auth/webauthn-lib
+RUN composer require web-auth/webauthn-lib --working-dir=/var/www/vendor
+RUN composer require web-auth/webauthn-framework --working-dir=/var/www/vendor
+
 
 # Create necessary directories with appropriate permissions
 RUN mkdir -p /var/www/html/install/ \
