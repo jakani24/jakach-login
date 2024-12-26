@@ -46,36 +46,22 @@ try {
     if ($fn !== 'getStoredDataHtml') {
 
         // Formats
-        $formats = [];
-        //if (filter_input(INPUT_GET, 'fmt_android-key')) {
-            $formats[] = 'android-key';
-        //}
-        ///if (filter_input(INPUT_GET, 'fmt_android-safetynet')) {
-            $formats[] = 'android-safetynet';
-        //}
-        //if (filter_input(INPUT_GET, 'fmt_apple')) {
-            $formats[] = 'apple';
-        //}
-        //if (filter_input(INPUT_GET, 'fmt_fido-u2f')) {
-            $formats[] = 'fido-u2f';
-        //}
-        //if (filter_input(INPUT_GET, 'fmt_none')) {
-            $formats[] = 'none';
-        //}
-        //if (filter_input(INPUT_GET, 'fmt_packed')) {
-            $formats[] = 'packed';
-        //}
-        //if (filter_input(INPUT_GET, 'fmt_tpm')) {
-            $formats[] = 'tpm';
-        //}
+	$formats = [];
+	$formats[] = 'android-key';
+	$formats[] = 'android-safetynet';
+	$formats[] = 'apple';
+	$formats[] = 'fido-u2f';
+	$formats[] = 'none';
+	$formats[] = 'packed';
+	$formats[] = 'tpm';
 
-		$rpId=$_SERVER['SERVER_NAME'];
-		
-		$typeUsb = true;
-		$typeNfc = true;
-		$typeBle = true;
-		$typeInt = true;
-		$typeHyb = true;
+	$rpId=$_SERVER['SERVER_NAME'];
+
+	$typeUsb = true;
+	$typeNfc = true;
+	$typeBle = true;
+	$typeInt = true;
+	$typeHyb = true;
 
         // cross-platform: true, if type internal is not allowed
         //                 false, if only internal is allowed
@@ -94,28 +80,14 @@ try {
         $WebAuthn = new lbuchs\WebAuthn\WebAuthn('WebAuthn Library', $rpId, $formats);
 
         // add root certificates to validate new registrations
-        //if (filter_input(INPUT_GET, 'solo')) {
             $WebAuthn->addRootCertificates('rootCertificates/solo.pem');
-        //}
-        //if (filter_input(INPUT_GET, 'apple')) {
             $WebAuthn->addRootCertificates('rootCertificates/apple.pem');
-        //}
-        //if (filter_input(INPUT_GET, 'yubico')) {
             $WebAuthn->addRootCertificates('rootCertificates/yubico.pem');
-        //}
-        //if (filter_input(INPUT_GET, 'hypersecu')) {
             $WebAuthn->addRootCertificates('rootCertificates/hypersecu.pem');
-        //}
-        //if (filter_input(INPUT_GET, 'google')) {
             $WebAuthn->addRootCertificates('rootCertificates/globalSign.pem');
             $WebAuthn->addRootCertificates('rootCertificates/googleHardware.pem');
-        //}
-        //if (filter_input(INPUT_GET, 'microsoft')) {
             $WebAuthn->addRootCertificates('rootCertificates/microsoftTpmCollection.pem');
-        //}
-        //if (filter_input(INPUT_GET, 'mds')) {
             $WebAuthn->addRootCertificates('rootCertificates/mds');
-        //}
 
     }
 
@@ -176,9 +148,7 @@ try {
         $data->userDisplayName = $userDisplayName;
 
         // Store registration data in the database
-		$stmt = $conn->prepare("UPDATE users set  credential_id = ?, public_key = ?, counter = ?, auth_method_enabled_passkey = 1, auth_method_required_passkey = 1 WHERE username = ?");
-        //$stmt = $conn->prepare("INSERT INTO users (user_hex_id, credential_id, public_key, counter) VALUES (?, ?, ?, ?)");
-		//var_dump($data);
+	$stmt = $conn->prepare("UPDATE users set  credential_id = ?, public_key = ?, counter = ?, auth_method_enabled_passkey = 1, auth_method_required_passkey = 1 WHERE username = ?");
         $stmt->execute([ $data->credentialId, $data->credentialPublicKey, $data->signatureCounter,$userName]);
 
         $msg = 'registration success.';
@@ -198,3 +168,4 @@ try {
     print(json_encode($return));
 }
 ?>
+

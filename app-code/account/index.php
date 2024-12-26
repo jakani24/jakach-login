@@ -280,17 +280,6 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
         });
       });
 
-      // Function to show error modal
-      function showErrorModal(message) {
-        document.getElementById('errorModalMessage').textContent = message;
-        const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
-        errorModal.show();
-      }
-      function showSuccessModal(message) {
-        document.getElementById('successModalMessage').textContent = message;
-        const errorModal = new bootstrap.Modal(document.getElementById('successModal'));
-        errorModal.show();
-      }
       
       
       ////////////////////////////////////////////
@@ -328,6 +317,18 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
       }
     });
     });
+    
+    // Function to show error modal
+      function showErrorModal(message) {
+        document.getElementById('errorModalMessage').textContent = message;
+        const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+        errorModal.show();
+      }
+      function showSuccessModal(message) {
+        document.getElementById('successModalMessage').textContent = message;
+        const errorModal = new bootstrap.Modal(document.getElementById('successModal'));
+        errorModal.show();
+      }
     //webauthn js
     
     async function createRegistration() {
@@ -374,32 +375,15 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
                 // prompt server response
                 if (authenticatorAttestationServerResponse.success) {
                     reloadServerPreview();
-                    window.alert(authenticatorAttestationServerResponse.msg || 'registration success');
+                    showSuccessModal(authenticatorAttestationServerResponse.msg || 'Registrated passkey successfully');
                 } else {
                     throw new Error(authenticatorAttestationServerResponse.msg);
                 }
 
             } catch (err) {
                 reloadServerPreview();
-                window.alert(err.message || 'unknown error occured');
+                showErrorModal(err.message || 'unknown error occured');
             }
-        }
-
-
-
-        function queryFidoMetaDataService() {
-            window.fetch('/api/account/update_passkey.php?fn=queryFidoMetaDataService' + getGetParams(), {method:'GET',cache:'no-cache'}).then(function(response) {
-                return response.json();
-
-            }).then(function(json) {
-               if (json.success) {
-                   window.alert(json.msg);
-               } else {
-                   throw new Error(json.msg);
-               }
-            }).catch(function(err) {
-                window.alert(err.message || 'unknown error occured');
-            });
         }
 
         /**

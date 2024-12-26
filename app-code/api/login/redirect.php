@@ -23,20 +23,35 @@ else if($_SESSION["needs_auth"]===false && $_SESSION["mfa_required"]==1 && $_SES
 
 //check for mfa
 }
-else if($_SESSION["needs_auth"]===false && $_SESSION["passkey_required"]==1 && $_SESSION["passkey_authenticated"]==0){
+/*else if($_SESSION["needs_auth"]===false && $_SESSION["passkey_required"]==1 && $_SESSION["passkey_authenticated"]==0){
 //check for passkey
 	$data=[
                 'message' => 'auth_passkey',
                 'redirect' => '/login/passkey.php'
         ];
         echo(json_encode($data));
-}else if ($_SESSION["needs_auth"]===false && $_SESSION["mfa_authenticated"]==1 && $_SESSION["pw_authenticated"]==1 && $_SESSION["passkey_authenticated"]){
+}*/else if ($_SESSION["needs_auth"]===false && $_SESSION["mfa_authenticated"]==1 && $_SESSION["pw_authenticated"]==1){
 	//fully authenticated
 	$_SESSION["logged_in"]=true;
-	$data=[
-                'message' => 'done',
-                'redirect' => $send_to
-        ];
+	//create auth token which other services can then use to check if user logged in
+	$user_id=$_SESSION["id"];
+	$auth_token=bin2hex(random_bytes(128));
+	$sql="INSERT INTO auth_tokens (auth_token,user_id) VALUES(?,?);";
+	$stmt = mysqli_prepare($conn, $sql);
+	mysqli_stmt_bind_param($stmt, 'si', $auth_token,$user_id);
+	mysqli_stmt_execute($stmt);
+	mysqli_stmt_close($stmt);
+	if(!empty($send_to)){
+		$data=[
+		        'message' => 'done',
+		        'redirect' => $send_to."?auth=$auth_token"
+		];
+	}else{
+		$data=[
+		        'message' => 'done',
+		        'redirect' => ''
+		];
+	}
         echo(json_encode($data));
 }
 else{
@@ -45,7 +60,7 @@ else{
 	$username=$_SESSION["username"];
 	$_SESSION["needs_auth"]=false;
 	$_SESSION["logged_in"]=false;
-	$sql="SELECT auth_method_required_pw, auth_method_required_2fa, auth_method_required_passkey FROM users WHERE username = ?";
+	$sql="SELECT auth_method_required_pw, auth_method_required_2fa, auth_method_required_passkey, id FROM users WHERE username = ?";
 	$stmt = mysqli_prepare($conn, $sql);
 	mysqli_stmt_bind_param($stmt, 's', $username);
 	mysqli_stmt_execute($stmt);
@@ -54,7 +69,7 @@ else{
 	$mfa=0;
 	$passkey=0;
 	if(mysqli_stmt_num_rows($stmt) == 1){
-		mysqli_stmt_bind_result($stmt, $pw,$mfa,$passkey);
+		mysqli_stmt_bind_result($stmt, $pw,$mfa,$passkey,$user_id);
 		mysqli_stmt_fetch($stmt);
 		$_SESSION["pw_required"] = $pw;
 		$_SESSION["pw_authenticated"] = ($pw == 0) ? 1 : 0; // If $pw is 0, set pw_authenticated to 1
@@ -62,6 +77,7 @@ else{
 		$_SESSION["mfa_authenticated"] = ($mfa == 0) ? 1 : 0;
 		$_SESSION["passkey_required"] = $passkey;
 		$_SESSION["passkey_authenticated"] = ($passkey == 0) ? 1 : 0;
+		$_SESSION["id"]=$user_id;
 		$data=[
 			'message' => 'prepared_start_auth',
 			'redirect' => '/login/'

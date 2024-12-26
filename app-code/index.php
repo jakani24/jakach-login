@@ -10,6 +10,10 @@
 	include "assets/components.php";
 	session_start();
 	$_SESSION["end_url"]=$_GET["send_to"];
+	if (isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] === true) {
+	    header("LOCATION:/login/");
+	    exit();
+	}
   ?>
 </head>
 <body>

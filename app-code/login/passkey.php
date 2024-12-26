@@ -31,27 +31,32 @@
     </div>
   </div>
 
-<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="errorModalLabel">Error</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Wrong 2fa pin!
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
+  <!-- Error Modal -->
+  <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="errorModalLabel">Error</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
+        <div class="modal-body" id="errorModalMessage">
+          <!-- Error message will go here -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
     </div>
+  </div>
 
 
 <script>
-//js that handelsour passkey login
-
+//js that handels our passkey login
+function showErrorModal(message) {
+        document.getElementById('errorModalMessage').textContent = message;
+        const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+        errorModal.show();
+}
 async function checkRegistration() {
             try {
 
@@ -96,9 +101,7 @@ async function checkRegistration() {
                 if (authenticatorAttestationServerResponse.success) {
                     reloadServerPreview();
                     //window.alert(authenticatorAttestationServerResponse.msg || 'login success');
-					//auth success, send to index
-					
-				window.location.href = "/login/";
+		   window.location.href = "/login/";
 					
                 } else {
                     throw new Error(authenticatorAttestationServerResponse.msg);
@@ -108,29 +111,13 @@ async function checkRegistration() {
                 reloadServerPreview();
 				if(err.message=="User does not exist"){
 					//we will display a warning here later on
-					//alert("User does not exist!!! check line 71 of login.html to set warning");
-					var alert_message=document.getElementById("no_passkey");
-					alert_message.style.display="block";
+					showErrorModal("User does not exist!");
 				}else{
-					window.alert(err.message || 'unknown error occured');
+					showErrorModal(err.message || 'unknown error occured');
 				}
             }
         }
 
-        function queryFidoMetaDataService() {
-            window.fetch('/api/login/check_passkey.php?fn=queryFidoMetaDataService' + getGetParams(), {method:'GET',cache:'no-cache'}).then(function(response) {
-                return response.json();
-
-            }).then(function(json) {
-               if (json.success) {
-                   window.alert(json.msg);
-               } else {
-                   throw new Error(json.msg);
-               }
-            }).catch(function(err) {
-                window.alert(err.message || 'unknown error occured');
-            });
-        }
 
         /**
          * convert RFC 1342-like base64 strings to array buffer
