@@ -35,6 +35,7 @@ if (isset($data['status'])) {
         $_SESSION["id"] = $data["id"];
         $_SESSION["email"] = $data["email"];
         $_SESSION["telegram_id"] = $data["telegram_id"];
+        $_SESSION["user_token"] = $data["user_token"];
         
         // Return a success response
         echo json_encode(['status' => 'success', 'msg' => 'logged in']);

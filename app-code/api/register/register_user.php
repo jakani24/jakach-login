@@ -81,11 +81,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pepper=bin2hex(random_bytes(32));
     // Hash the password / a salt is added automaticly
     $hashedPassword = password_hash($password.$pepper, PASSWORD_BCRYPT);
+    
+    //random token which is used to auth users even if they change theyr username
+    $user_token=bin2hex(random_bytes(32));
 
     // Insert the user into the database
-    $sql = "INSERT INTO users (username, email, password, telegram_id, pepper, auth_method_enabled_pw, auth_method_required_pw, auth_method_enabled_passkey, auth_method_required_passkey, auth_method_enabled_2fa, auth_method_required_2fa,auth_method_keepmeloggedin_enabled) VALUES (?, ?, ?, ?, ?, 1, 1,0,0,0,0,0)";
+    $sql = "INSERT INTO users (username, email, password, telegram_id, pepper, auth_method_enabled_pw, auth_method_required_pw, auth_method_enabled_passkey, auth_method_required_passkey, auth_method_enabled_2fa, auth_method_required_2fa,auth_method_keepmeloggedin_enabled, user_token) VALUES (?, ?, ?, ?, ?, 1, 1,0,0,0,0,0,?)";
     $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, 'sssss', $username, $email, $hashedPassword, $telegram_id, $pepper);
+    mysqli_stmt_bind_param($stmt, 'ssssss', $username, $email, $hashedPassword, $telegram_id, $pepper,$user_token);
     if (mysqli_stmt_execute($stmt)) {
         echo json_encode([
             'success' => true,

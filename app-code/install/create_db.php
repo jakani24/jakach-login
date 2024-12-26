@@ -62,6 +62,7 @@
 			    username VARCHAR(255) NOT NULL UNIQUE,
 			    public_key TEXT DEFAULT '',
 			    credential_id VARBINARY(255),
+			    user_token VARCHAR(128),
 			    counter INT DEFAULT 0,
 			    2fa VARCHAR(255),
 			    email VARCHAR(255),

@@ -10,8 +10,8 @@
 	include "assets/components.php";
 	session_start();
 	$_SESSION["end_url"]=$_GET["send_to"];
-	if (isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] === true) {
-	    header("LOCATION:/login/");
+	if (isset($_SESSION["logged_in"]) && $_SESSION["logged_in"] === true && !isset($_GET["donotsend"])) {
+	    header("LOCATION:/login/account_selector.php");
 	    exit();
 	}
   ?>

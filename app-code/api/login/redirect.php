@@ -60,7 +60,7 @@ else{
 	$username=$_SESSION["username"];
 	$_SESSION["needs_auth"]=false;
 	$_SESSION["logged_in"]=false;
-	$sql="SELECT auth_method_required_pw, auth_method_required_2fa, auth_method_required_passkey, id FROM users WHERE username = ?";
+	$sql="SELECT auth_method_required_pw, auth_method_required_2fa, auth_method_required_passkey, id, user_token FROM users WHERE username = ?";
 	$stmt = mysqli_prepare($conn, $sql);
 	mysqli_stmt_bind_param($stmt, 's', $username);
 	mysqli_stmt_execute($stmt);
@@ -68,8 +68,9 @@ else{
 	$pw=0;
 	$mfa=0;
 	$passkey=0;
+	$user_token="";
 	if(mysqli_stmt_num_rows($stmt) == 1){
-		mysqli_stmt_bind_result($stmt, $pw,$mfa,$passkey,$user_id);
+		mysqli_stmt_bind_result($stmt, $pw,$mfa,$passkey,$user_id,$user_token);
 		mysqli_stmt_fetch($stmt);
 		$_SESSION["pw_required"] = $pw;
 		$_SESSION["pw_authenticated"] = ($pw == 0) ? 1 : 0; // If $pw is 0, set pw_authenticated to 1
@@ -78,6 +79,7 @@ else{
 		$_SESSION["passkey_required"] = $passkey;
 		$_SESSION["passkey_authenticated"] = ($passkey == 0) ? 1 : 0;
 		$_SESSION["id"]=$user_id;
+		$_SESSION["user_token"]=$user_token;
 		$data=[
 			'message' => 'prepared_start_auth',
 			'redirect' => '/login/'

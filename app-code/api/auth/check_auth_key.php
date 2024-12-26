@@ -17,7 +17,7 @@ if(mysqli_stmt_num_rows($stmt) == 1){
 	//we now have userid, close stmt
 	mysqli_stmt_close($stmt);
 	
-	$sql="SELECT username, email, telegram_id FROM users WHERE id = ?";
+	$sql="SELECT username, email, telegram_id, user_token FROM users WHERE id = ?";
 	$stmt = mysqli_prepare($conn, $sql);
 	mysqli_stmt_bind_param($stmt, 'i', $user_id);
 	mysqli_stmt_execute($stmt);
@@ -25,7 +25,8 @@ if(mysqli_stmt_num_rows($stmt) == 1){
 	$username="";
 	$email="";
 	$telegram="";
-	mysqli_stmt_bind_result($stmt,$username,$email,$telegram);
+	$user_token="";
+	mysqli_stmt_bind_result($stmt,$username,$email,$telegram,$user_token);
 	mysqli_stmt_fetch($stmt);
 	mysqli_stmt_close($stmt);
 	$data=[
@@ -34,7 +35,8 @@ if(mysqli_stmt_num_rows($stmt) == 1){
 		'username'=>$username,
 		'email'=>$email,
 		'telegram_id'=>$telegram,
-		'id'=>$user_id
+		'id'=>$user_id,
+		'user_token'=>$user_token
 	];
 	
 	//remove auth key

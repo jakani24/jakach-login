@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 <head>
@@ -131,7 +134,12 @@
             showModalMessage('Success', 'Registration successful!');
             // Redirect to a different page if needed after closing the modal
             setTimeout(() => {
-              window.location.href = '/?send_to=/account/';
+              <?php
+              	if(empty($_SESSION["end_url"]))
+              		echo("window.location.href = '/?send_to=/account/';");
+              	else
+              		echo("window.location.href = '/?send_to=".$_SESSION["end_url"]."';");
+              ?>
             }, 2000);
           } else {
             showModalMessage('Error', result.message || 'Registration failed!');
