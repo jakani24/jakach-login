@@ -17,6 +17,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
   <?php  
     include "../assets/components.php";  
   ?>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> <!-- Google Material Icons -->
 </head>
 <body>
   <!-- Main Container -->
@@ -39,19 +40,22 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
             <!-- Tabs for General and Password sections -->
             <ul class="nav nav-tabs" id="accountTab" role="tablist">
               <li class="nav-item" role="presentation">
-                <a class="nav-link active" id="general-tab" data-bs-toggle="tab" href="#general" role="tab" aria-controls="general" aria-selected="true">General</a>
+                <a class="nav-link active" id="general-tab" data-bs-toggle="tab" href="#general" role="tab" aria-controls="general" aria-selected="true"><span class="material-icons">person</span></a>
               </li>
               <li class="nav-item" role="presentation">
-                <a class="nav-link" id="password-tab" data-bs-toggle="tab" href="#password" role="tab" aria-controls="password" aria-selected="false">Password</a>
+                <a class="nav-link" id="password-tab" data-bs-toggle="tab" href="#password" role="tab" aria-controls="password" aria-selected="false"><span class="material-icons">lock</span></a>
               </li>
               <li class="nav-item" role="presentation">
-                <a class="nav-link" id="2fa-tab" data-bs-toggle="tab" href="#2fa" role="tab" aria-controls="2fa" aria-selected="false">2fa</a>
+                <a class="nav-link" id="2fa-tab" data-bs-toggle="tab" href="#2fa" role="tab" aria-controls="2fa" aria-selected="false"><span class="material-icons">security</span></a>
               </li>
               <li class="nav-item" role="presentation">
-                <a class="nav-link" id="passkey-tab" data-bs-toggle="tab" href="#passkey" role="tab" aria-controls="passkey" aria-selected="false">Passkey</a>
+                <a class="nav-link" id="passkey-tab" data-bs-toggle="tab" href="#passkey" role="tab" aria-controls="passkey" aria-selected="false"><span class="material-icons">fingerprint</span></a>
               </li>
               <li class="nav-item" role="presentation">
-                <a class="nav-link"  href="/login/logout.php" role="tab" aria-selected="false">Logout</a>
+                <a class="nav-link" id="message-tab" data-bs-toggle="tab" href="#message" role="tab" aria-controls="message" aria-selected="false"><span class="material-icons">message</span></a>
+              </li>
+              <li class="nav-item" role="presentation">
+                <a class="nav-link"  href="/login/logout.php" role="tab" aria-selected="false"><span class="material-icons">logout</span></a>
               </li>
             </ul>
           </div>
@@ -77,6 +81,17 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
                   <div class="mb-3">
                     <label for="telegram" class="form-label">Telegram ID</label>
                     <input type="text" class="form-control" id="telegram" placeholder="Set telegram id">
+                  </div>
+                  
+                  
+                  <div class="mb-3">
+                    <label for="user_token" class="form-label">User token</label>
+                    <input type="text" class="form-control" id="user_token" disabled>
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label for="last_login" class="form-label">Last login</label>
+                    <input type="text" class="form-control" id="last_login" disabled>
                   </div>
 
                   <!-- Save Changes Button -->
@@ -119,14 +134,15 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
               </div>
               <div class="tab-pane fade" id="passkey" role="tabpanel" aria-labelledby="passkey-tab">
                 <p>Using a passkey you can login with e.g. your fingerprint. If this is enabled you can still login using your password but using a passkey is faster.</p>
-                <!--
-                <div class="form-check form-switch">
-		  <input class="form-check-input" type="checkbox" id="passkey-switch">
-		  <label class="form-check-label" for="passkey-switch">Enable passkey</label>
-		</div>
-		-->
 		<br>
 		<button id="create-passkey" class="btn btn-primary" onclick="createRegistration()">Register passkey</button>
+              </div>
+              <div class="tab-pane fade" id="message" role="tabpanel" aria-labelledby="message-tab">
+                <p>You can get a message via telegram whenever somebody logs in to your account</p>
+		<div class="form-check form-switch">
+		  <input class="form-check-input" type="checkbox" id="message-switch">
+		  <label class="form-check-label" for="message-switch">Enable login messages</label>
+		</div>
               </div>
             </div>
           </div>
@@ -188,9 +204,12 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
 
           // Fill input fields
           document.getElementById('name').value = user.name;
+          document.getElementById('user_token').value = user.user_token;
           document.getElementById('email').value = user.email;
           document.getElementById('telegram').value = user.telegram_id;
           document.getElementById('twofa-switch').checked = user.twofa_enabled;
+          document.getElementById('message-switch').checked = user.login_message;
+          document.getElementById('last_login').value = user.last_login;
           
         })
         .catch(error => {
@@ -315,6 +334,43 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
         console.error('Error:', error);
         showErrorModal('Failed to send request. Please try again later.');
       }
+    });
+    
+    const switchElement2 = document.getElementById('message-switch');
+
+    // Add an event listener for when the switch is changed
+    switchElement2.addEventListener('change', async function () {
+      // Get the current state of the switch
+      const isEnabled = switchElement2.checked;
+	if(document.getElementById('telegram').value.length!=0){
+	      try {
+		// Send the state to the backend using a POST request
+		const response = await fetch('/api/account/update_message.php', {
+		  method: 'POST',
+		  headers: {
+		    'Content-Type': 'application/json',
+		  },
+		  body: JSON.stringify({
+		    enable_message: isEnabled, // Send the new state of 2FA
+		  }),
+		});
+
+		// Check if the response is successful
+		const result = await response.json();
+		if (response.ok) {
+		  // Handle success
+		  showSuccessModal(result.message || (isEnabled ? 'Login messages enabled successfully.' : 'Login messages disabled successfully.'));
+		} else {
+		  // Handle error
+		  showErrorModal('Error: ' + (result.message || 'An error occurred while updating login messages.'));
+		}
+	      } catch (error) {
+		console.error('Error:', error);
+		showErrorModal('Failed to send request. Please try again later.');
+	      }
+	  }else{
+	  	showErrorModal("Please configure your Telegram ID first.");
+	  }
     });
     });
     

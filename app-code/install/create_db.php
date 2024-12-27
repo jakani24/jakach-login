@@ -62,6 +62,8 @@
 			    username VARCHAR(255) NOT NULL UNIQUE,
 			    public_key TEXT DEFAULT '',
 			    credential_id VARBINARY(255),
+			    last_login VARCHAR(255),
+			    login_message INT,
 			    user_token VARCHAR(128),
 			    counter INT DEFAULT 0,
 			    2fa VARCHAR(255),
@@ -111,6 +113,25 @@
 				$success=0;
 				echo '<br><div class="alert alert-danger" role="alert">
 						Error creating auth_tokens users: ' . $conn->error .'
+				</div>';
+			}
+			
+			$sql="CREATE TABLE IF NOT EXISTS reset_tokens (
+			    id INT AUTO_INCREMENT PRIMARY KEY,
+			    auth_token VARCHAR(256),
+			    user_id INT,
+			    valid_until INT
+			);";
+
+
+			if ($conn->query($sql) === TRUE) {
+				echo '<br><div class="alert alert-success" role="alert">
+						Table reset_tokens created successfully!
+				</div>';
+			} else {
+				$success=0;
+				echo '<br><div class="alert alert-danger" role="alert">
+						Error creating reset_tokens users: ' . $conn->error .'
 				</div>';
 			}
 			

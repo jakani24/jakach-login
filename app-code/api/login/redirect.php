@@ -1,6 +1,33 @@
 <?php
 session_start();
 header('Content-Type: application/json');
+
+
+function get_location_from_ip($ip) {
+    // Use ip-api.com to fetch geolocation data
+    $url = "http://ip-api.com/json/$ip";
+
+    // Initialize curl
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    // Execute curl and decode the JSON response
+    $response = curl_exec($ch);
+    curl_close($ch);
+
+    // Convert JSON response to PHP array
+    $data = json_decode($response, true);
+
+    // Check for a successful response
+    if ($data && $data['status'] === 'success') {
+        return $data; // Return the geolocation data
+    }
+
+    return null; // Return null if API call fails
+}
+
+
 $send_to=$_SESSION["end_url"];
 
 include "../../config/config.php";
@@ -32,7 +59,6 @@ else if($_SESSION["needs_auth"]===false && $_SESSION["mfa_required"]==1 && $_SES
         echo(json_encode($data));
 }*/else if ($_SESSION["needs_auth"]===false && $_SESSION["mfa_authenticated"]==1 && $_SESSION["pw_authenticated"]==1){
 	//fully authenticated
-	$_SESSION["logged_in"]=true;
 	//create auth token which other services can then use to check if user logged in
 	$user_id=$_SESSION["id"];
 	$auth_token=bin2hex(random_bytes(128));
@@ -49,9 +75,56 @@ else if($_SESSION["needs_auth"]===false && $_SESSION["mfa_required"]==1 && $_SES
 	}else{
 		$data=[
 		        'message' => 'done',
-		        'redirect' => ''
+		        'redirect' => '/account/'
 		];
 	}
+	//update last login
+	$ip=$_SERVER["REMOTE_ADDR"];
+	$date=date('Y-m-d H:i:s');
+	$last_login_msg=$date." from ".$ip;
+	$sql="UPDATE users SET last_login = ? WHERE id = ?";
+	$stmt = mysqli_prepare($conn, $sql);
+	mysqli_stmt_bind_param($stmt, 'si', $last_login_msg,$user_id);
+	mysqli_stmt_execute($stmt);
+	mysqli_stmt_close($stmt);
+	//send login message
+	if($_SESSION["login_message"] && $_SESSION["logged_in"]!==true){
+		$device = $_SERVER['HTTP_USER_AGENT'];
+		$location=get_location_from_ip($ip);
+		$message = "⚠️ *Login Warning*\n\n"
+		    . "We noticed a login attempt with your account.\n\n"
+		    . "*Date&Time*: $date\n"
+		    . "*Device&Browser*: $device\n"
+		    . "*Location*: ".$location["country"].", ".$location["state"].", ".$location["city"]."\n"
+		    . "*Account*: ".$_SESSION["username"]."\n"
+		    . "*IP*: $ip\n\n"
+		    . "If this was you, you can ignore this message. If not, please secure your account immediately.";
+
+		// Telegram API URL
+		$url = "https://api.telegram.org/$TELEGRAM_BOT_API/sendMessage";
+
+		// Data to be sent in the POST request
+		$telegram_id=$_SESSION["telegram_id"];
+		$message_data = [
+		    'chat_id' => $telegram_id,
+		    'text' => $message,
+		    'parse_mode' => 'Markdown', // Use Markdown for formatting
+		];
+
+		// Use cURL to send the request
+		$ch = curl_init();
+
+		// Construct the GET request URL
+		$query_string = http_build_query($message_data); // Converts the array to URL-encoded query string
+		$get_url = $url . '?' . $query_string; // Append query string to the base URL
+		curl_setopt($ch, CURLOPT_URL, $get_url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Still retrieve the response if needed
+		curl_exec($ch);
+		curl_close($ch);
+
+	}
+	
+	$_SESSION["logged_in"]=true;
         echo(json_encode($data));
 }
 else{
@@ -60,7 +133,7 @@ else{
 	$username=$_SESSION["username"];
 	$_SESSION["needs_auth"]=false;
 	$_SESSION["logged_in"]=false;
-	$sql="SELECT auth_method_required_pw, auth_method_required_2fa, auth_method_required_passkey, id, user_token FROM users WHERE username = ?";
+	$sql="SELECT auth_method_required_pw, auth_method_required_2fa, auth_method_required_passkey, id, user_token,last_login, login_message,telegram_id FROM users WHERE username = ?";
 	$stmt = mysqli_prepare($conn, $sql);
 	mysqli_stmt_bind_param($stmt, 's', $username);
 	mysqli_stmt_execute($stmt);
@@ -69,8 +142,11 @@ else{
 	$mfa=0;
 	$passkey=0;
 	$user_token="";
+	$last_login="";
+	$login_message=0;
+	$telegram_id="";
 	if(mysqli_stmt_num_rows($stmt) == 1){
-		mysqli_stmt_bind_result($stmt, $pw,$mfa,$passkey,$user_id,$user_token);
+		mysqli_stmt_bind_result($stmt, $pw,$mfa,$passkey,$user_id,$user_token,$last_login,$login_message,$telegram_id);
 		mysqli_stmt_fetch($stmt);
 		$_SESSION["pw_required"] = $pw;
 		$_SESSION["pw_authenticated"] = ($pw == 0) ? 1 : 0; // If $pw is 0, set pw_authenticated to 1
@@ -80,6 +156,9 @@ else{
 		$_SESSION["passkey_authenticated"] = ($passkey == 0) ? 1 : 0;
 		$_SESSION["id"]=$user_id;
 		$_SESSION["user_token"]=$user_token;
+		$_SESSION["last_login"]=$last_login;
+		$_SESSION["telegram_id"]=$telegram_id;
+		$_SESSION["login_message"]=$login_message;
 		$data=[
 			'message' => 'prepared_start_auth',
 			'redirect' => '/login/'

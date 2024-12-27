@@ -32,6 +32,7 @@
 				echo('<a class="btn btn-primary btn-lg" href="/login/passkey.php">Use passkey instead</a>');
 			}
 		?>
+		<center><a href="#" onclick="reset_pw();">Forgott password</a></center>
 		</div>
             </form>
           </div>
@@ -56,8 +57,32 @@
             </div>
         </div>
     </div>
+    
+<div class="modal fade" id="resetModal" tabindex="-1" aria-labelledby="resetModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="errorModalLabel">Password reset</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    If you have a Telegram Id or an email address linked to your account, we have sent you a reset link.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 <script>
+	//pw reset:
+	function reset_pw(){
+		fetch("/api/login/send_reset_link.php");
+		var resetModal = new bootstrap.Modal(document.getElementById('resetModal'));
+		resetModal.show();
+	}
+
     // Select the form
     const passwordForm = document.getElementById('passwordForm');
 
