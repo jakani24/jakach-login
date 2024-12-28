@@ -22,7 +22,7 @@ $ip=$_SERVER["REMOTE_ADDR"];
 $location=get_location_from_ip($ip);
 $date=date('Y-m-d H:i:s');
 $token=bin2hex(random_bytes(128));
-$link="https://jakach-auth.duckdns.org:444/login/reset_pw.php?token=$token";
+$link="https://auth.jakach.ch:444/login/reset_pw.php?token=$token";
 
 $message = "*Password reset token*\n\n"
     . "You have requested the reset of your password here is your reset link.\n\n"

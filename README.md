@@ -2,7 +2,7 @@
 
 **The new (future) open-source login system for Jakach**
 
-Jakach Login offers an easy and secure way to access all Jakach services, including **jakach.duckdns.org**, **app.ksw3d.ch**, and more. It simplifies the login process by enabling users to log in with passwords, passkeys, and two-factor authentication (2FA) for enhanced security.
+Jakach Login offers an easy and secure way to access all Jakach services, including **jakach.ch**, **app.ksw3d.ch**, and more. It simplifies the login process by enabling users to log in with passwords, passkeys, and two-factor authentication (2FA) for enhanced security.
 
 Jakach Login operates on its own authentication server. Any app utilizing Jakach Login must be able to communicate with this server via API requests.
 
@@ -53,7 +53,7 @@ To integrate Jakach Login into your application:
 4. **Add login button:**  
    In your app/login page add a button like:  
    ```html
-   <a href="https://jakach-auth.duckdns.org:444/?send_to=<your url/place of your oauth file>" class="btn btn-secondary">Log in using Jakach login</a>
+   <a href="https://auth.jakach.ch:444/?send_to=<your url/place of your oauth file>" class="btn btn-secondary">Log in using Jakach login</a>
    ```
 
 ---
