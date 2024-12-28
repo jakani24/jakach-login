@@ -74,7 +74,6 @@
 			    permissions VARCHAR(255),
 			    color_profile INT,
 			    auth_key VARCHAR(255),
-			    keepmeloggedin_token VARCHAR(255),
 			    auth_method_keepmeloggedin_enabled INT,
 			    auth_method_enabled_2fa INT,
 			    auth_method_enabled_pw INT,
@@ -132,6 +131,25 @@
 				$success=0;
 				echo '<br><div class="alert alert-danger" role="alert">
 						Error creating reset_tokens users: ' . $conn->error .'
+				</div>';
+			}
+			
+			$sql="CREATE TABLE IF NOT EXISTS keepmeloggedin (
+			    id INT AUTO_INCREMENT PRIMARY KEY,
+			    auth_token VARCHAR(256),
+			    user_id INT,
+			    agent VARCHAR(255)
+			);";
+
+
+			if ($conn->query($sql) === TRUE) {
+				echo '<br><div class="alert alert-success" role="alert">
+						Table keepmeloggedin created successfully!
+				</div>';
+			} else {
+				$success=0;
+				echo '<br><div class="alert alert-danger" role="alert">
+						Error creating keepmeloggedin users: ' . $conn->error .'
 				</div>';
 			}
 			

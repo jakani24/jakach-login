@@ -22,7 +22,9 @@
               <!-- Submit Button -->
 		<div class="d-grid gap-2">
 		  <!-- Login Button -->
-		  <button style="align:right" type="button" class="btn btn-primary btn-block" onclick="checkRegistration()">Login with a passkey</button>
+		  <button id="loginButton" type="button" class="btn btn-primary btn-block" onclick="checkRegistration()">
+		    <span id="buttonText">Login with a passkey</span>
+		</button>
 		</div>
             </form>
           </div>
@@ -58,6 +60,15 @@ function showErrorModal(message) {
         errorModal.show();
 }
 async function checkRegistration() {
+	    const button = document.getElementById("loginButton");
+	    const buttonText = document.getElementById("buttonText");
+
+	    // Disable the button to prevent multiple clicks
+	    button.disabled = true;
+
+	    // Change the button text and add a loading spinner
+	    buttonText.innerHTML = 'Loading...';
+	    button.innerHTML += ' <div class="spinner-border spinner-border-sm text-light" role="status"><span class="visually-hidden">Loading...</span></div>';
             try {
 
                 if (!window.fetch || !navigator.credentials || !navigator.credentials.create) {

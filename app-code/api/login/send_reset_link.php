@@ -2,6 +2,7 @@
 session_start();
 header('Content-Type: application/json');
 include "../../config/config.php";
+include "../utils/get_location.php";
 $username=$_SESSION["username"];
 $sql="SELECT id, email, telegram_id FROM users WHERE username = ?;";
 $conn = new mysqli($DB_SERVERNAME, $DB_USERNAME, $DB_PASSWORD, $DB_DATABASE);
@@ -18,9 +19,10 @@ mysqli_stmt_close($stmt);
 //send telegram message
 $device = $_SERVER['HTTP_USER_AGENT'];
 $ip=$_SERVER["REMOTE_ADDR"];
+$location=get_location_from_ip($ip);
 $date=date('Y-m-d H:i:s');
 $token=bin2hex(random_bytes(128));
-$link="https://jakach.duckdns.org:444/login/reset_pw.php?token=$token";
+$link="https://jakach-auth.duckdns.org:444/login/reset_pw.php?token=$token";
 
 $message = "*Password reset token*\n\n"
     . "You have requested the reset of your password here is your reset link.\n\n"
@@ -28,6 +30,7 @@ $message = "*Password reset token*\n\n"
     . "*Details of this request:*\n"
     . "• *Date&Time*: $date\n"
     . "• *Device&Browser*: $device\n"
+    . "*Location*: ".$location["country"].", ".$location["state"].", ".$location["city"]."\n"
     . "• *Account*: ".$_SESSION["username"]."\n"
     . "• *IP*: $ip\n\n"
     ."If this was you, you can reset your password. If this was not you somebody else tried to reset your password!\n"
@@ -54,6 +57,7 @@ curl_exec($ch);
 curl_close($ch);
 //send mail
 if(!empty($mail)){
+	$loc=$location["country"].", ".$location["state"].", ".$location["city"];
 	$content = "
 <!DOCTYPE html>
 <html lang='en'>
@@ -125,6 +129,7 @@ if(!empty($mail)){
             <li><strong>Device & Browser:</strong> $device</li>
             <li><strong>Account:</strong> $mail</li>
             <li><strong>IP Address:</strong> $ip</li>
+            <li><strong>Location:</strong> $loc</li>
         </ul>
         
         <p>If this was you, you can reset your password. If this was not you, someone else may have tried to reset your password.</p>
@@ -182,7 +187,7 @@ if(!empty($mail)){
 
 
 //insert the token into our db
-$valid_until=time()+8600;
+$valid_until=time()+(8600/2);
 $sql="INSERT INTO reset_tokens (auth_token, user_id,valid_until) VALUES (?,?,?);";
 $stmt = mysqli_prepare($conn, $sql);
 mysqli_stmt_bind_param($stmt, 'sii', $token,$id,$valid_until);

@@ -54,6 +54,13 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
               <li class="nav-item" role="presentation">
                 <a class="nav-link" id="message-tab" data-bs-toggle="tab" href="#message" role="tab" aria-controls="message" aria-selected="false"><span class="material-icons">message</span></a>
               </li>
+              <?php
+              	if($_SESSION["permissions"][0]==="1"){
+              		echo('<li class="nav-item" role="presentation">
+                <a class="nav-link" href="/account/manage_users.php" role="tab" aria-controls="message" aria-selected="false"><span class="material-icons">people</span></a>
+              </li>');
+              	}
+              ?>
               <li class="nav-item" role="presentation">
                 <a class="nav-link"  href="/login/logout.php" role="tab" aria-selected="false"><span class="material-icons">logout</span></a>
               </li>
@@ -96,6 +103,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
 
                   <!-- Save Changes Button -->
                   <button type="button" id="save-button" class="btn btn-success">Save Changes</button>
+                  <a class="btn btn-danger" onclick="delete_all_logmein();">Delete all &quot;remember me&quot; sessions</a>
                 </form>
               </div>
 
@@ -566,7 +574,9 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
                 location.href = location.href.replace('http', 'https');
             }
         }
-
+	function delete_all_logmein(){
+		fetch("/api/login/delete_keepmeloggedin.php");
+	}
   </script>
 
 </body>

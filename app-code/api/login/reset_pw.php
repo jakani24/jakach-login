@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		}
     }else {
     	mysqli_stmt_close($stmt);
-    	echo json_encode(['success' => false, 'message' => 'Ivalid auth token']);
+    	echo json_encode(['success' => false, 'message' => 'Invalid auth token']);
     }
     //remove token
     $sql="DELETE FROM reset_tokens WHERE auth_token = ?;";

@@ -8,11 +8,19 @@
   <title>Jakach Login</title>
   <?php
 	include "assets/components.php";
+	include "api/utils/check_keepmeloggedin.php";
 	session_start();
 	$_SESSION["end_url"]=$_GET["send_to"];
-	if (isset($_SESSION["logged_in"]) && $_SESSION["logged_in"] === true && !isset($_GET["donotsend"])) {
+	if (isset($_SESSION["logged_in"]) && $_SESSION["logged_in"] === true && !isset($_GET["donotsend"]) /*also check for keepmeloggedin here*/) {
 	    header("LOCATION:/login/account_selector.php");
 	    exit();
+	}
+	if(isset($_GET["donotsend"])){
+		setcookie("auth_token", "", time() - 3600, "/");
+	}
+	if(logmein()==="success"){
+		header("LOCATION:/login/account_selector.php");
+	    	exit();
 	}
   ?>
 </head>
@@ -41,6 +49,8 @@
 		  <button type="submit" class="btn btn-primary btn-lg">Einloggen</button>
 		  <!-- Register Button -->
 		  <a class="btn btn-outline-primary btn-lg" href="/register/">Account Erstellen</a>
+		  <br>
+
 		</div>
             </form>
           </div>
@@ -77,7 +87,7 @@
       // Get the username input value
       const usernameInput = document.getElementById('username');
       const username = usernameInput.value;
-
+      
       // Check if username is empty (just in case)
       if (!username) {
         alert('Please enter a username.');
