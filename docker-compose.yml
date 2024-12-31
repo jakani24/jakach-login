@@ -4,6 +4,7 @@ services:
   jakach-login-db:
     image: yobasystems/alpine-mariadb:latest
     container_name: jakach-login-db
+    restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: 1234
     networks:
@@ -17,12 +18,14 @@ services:
       context: .
       dockerfile: srv_dockerfile
     container_name: jakach-login-srv
+    restart: unless-stopped
     networks:
       jakach-login-network:
         ipv4_address: 192.168.5.3
     ports:
-      - "444:443"
-      - "80:443"
+     # - "444:443"
+     # - "80:443"
+       - "446:80"
     depends_on:
       - jakach-login-db
     volumes:
