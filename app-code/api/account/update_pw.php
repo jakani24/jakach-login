@@ -40,8 +40,8 @@ if (isset($data->old_password) && isset($data->new_password)) {
     $user_id = $_SESSION['id']; // Assuming user_id is stored in session
 
     // Sanitize inputs
-    $old_password = htmlspecialchars($data->old_password);
-    $new_password = htmlspecialchars($data->new_password);
+    $old_password = $data->old_password;
+    $new_password = $data->new_password;
     
     // Check password strength (optional but recommended)
     if (strlen($new_password) < 12) {
