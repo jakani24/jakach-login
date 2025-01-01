@@ -2,11 +2,17 @@
 header('Content-Type: application/json');
 include "../../config/config.php";
 $conn = new mysqli($DB_SERVERNAME, $DB_USERNAME, $DB_PASSWORD, $DB_DATABASE);
+$sql="DELETE FROM auth_tokens WHERE valid_until < ?;";
+$stmt = mysqli_prepare($conn, $sql);
+mysqli_stmt_bind_param($stmt, 'i',$now);
+mysqli_stmt_execute($stmt);
+mysqli_stmt_close($stmt);
 
 $auth_key=$_GET["auth_token"];
-$sql="SELECT user_id FROM auth_tokens WHERE auth_token = ?;";
+$now=time();
+$sql="SELECT user_id FROM auth_tokens WHERE auth_token = ? AND valid_until > ?;";
 $stmt = mysqli_prepare($conn, $sql);
-mysqli_stmt_bind_param($stmt, 's', $auth_key);
+mysqli_stmt_bind_param($stmt, 'si', $auth_key,$now);
 mysqli_stmt_execute($stmt);
 mysqli_stmt_store_result($stmt);
 //if auth key is valid

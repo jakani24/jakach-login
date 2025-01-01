@@ -100,7 +100,8 @@
 			$sql="CREATE TABLE IF NOT EXISTS auth_tokens (
 			    id INT AUTO_INCREMENT PRIMARY KEY,
 			    auth_token VARCHAR(256),
-			    user_id INT
+			    user_id INT,
+			    valid_until INT
 			);";
 
 

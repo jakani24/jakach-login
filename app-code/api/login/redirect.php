@@ -46,10 +46,11 @@ else if ($_SESSION["needs_auth"]===false && $_SESSION["mfa_authenticated"]==1 &&
 	//fully authenticated
 	//create auth token which other services can then use to check if user logged in
 	$user_id=$_SESSION["id"];
+	$valid_until=time()+(15*60);
 	$auth_token=bin2hex(random_bytes(128));
-	$sql="INSERT INTO auth_tokens (auth_token,user_id) VALUES(?,?);";
+	$sql="INSERT INTO auth_tokens (auth_token,user_id, valid_until) VALUES(?,?,?);";
 	$stmt = mysqli_prepare($conn, $sql);
-	mysqli_stmt_bind_param($stmt, 'si', $auth_token,$user_id);
+	mysqli_stmt_bind_param($stmt, 'sii', $auth_token,$user_id,$valid_until);
 	mysqli_stmt_execute($stmt);
 	mysqli_stmt_close($stmt);
 	if(!empty($send_to)){
