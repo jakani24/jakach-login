@@ -32,7 +32,6 @@ services:
       - ./app-code:/var/www/html
       - ./apache-conf:/etc/apache2/sites-available
       - ./php-conf:/usr/local/etc/php/
-      - ./certs:/etc/apache2/certs
 networks:
   jakach-login-network:
     driver: bridge
