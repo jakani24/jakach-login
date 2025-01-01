@@ -53,7 +53,7 @@ To integrate Jakach Login into your application:
 4. **Add login button:**  
    In your app/login page add a button like:  
    ```html
-   <a href="https://auth.jakach.ch:444/?send_to=<your url/place of your oauth file>" class="btn btn-secondary">Log in using Jakach login</a>
+   <a href="https://auth.jakach.ch/?send_to=<your url/place of your oauth file>" class="btn btn-secondary">Log in using Jakach login</a>
    ```
 
 ---

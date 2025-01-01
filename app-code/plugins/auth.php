@@ -6,7 +6,7 @@ This file can be installed in any service. If done so a user can authenticate wi
 $auth_token = $_GET["auth"];
 
 // Check the auth token against Jakach login API
-$check_url = "https://auth.jakach.ch:444/api/auth/check_auth_key.php?auth_token=" . $auth_token;
+$check_url = "https://auth.jakach.ch/api/auth/check_auth_key.php?auth_token=" . $auth_token;
 
 // Initialize cURL
 $ch = curl_init();
