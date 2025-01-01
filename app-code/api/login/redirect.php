@@ -64,7 +64,7 @@ else if ($_SESSION["needs_auth"]===false && $_SESSION["mfa_authenticated"]==1 &&
 		];
 	}
 	//update last login
-	$ip=$_SERVER["HTTP_X_FORWARDED_FOR"];
+	$ip=trim(explode(",",$_SERVER["HTTP_X_FORWARDED_FOR"])[0]);
 	$date=date('Y-m-d H:i:s');
 	$last_login_msg=$date." from ".$ip;
 	$sql="UPDATE users SET last_login = ? WHERE id = ?";

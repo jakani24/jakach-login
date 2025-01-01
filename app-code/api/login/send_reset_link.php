@@ -18,7 +18,8 @@ mysqli_stmt_fetch($stmt);
 mysqli_stmt_close($stmt);
 //send telegram message
 $device = $_SERVER['HTTP_USER_AGENT'];
-$ip=$_SERVER["REMOTE_ADDR"];
+//$ip=$_SERVER["REMOTE_ADDR"];
+$ip=trim(explode(",",$_SERVER["HTTP_X_FORWARDED_FOR"])[0]);
 $location=get_location_from_ip($ip);
 $date=date('Y-m-d H:i:s');
 $token=bin2hex(random_bytes(128));
