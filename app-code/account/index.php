@@ -296,6 +296,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
         })
         .then(data => {
           if (data.success) {
+            delete_all_logmein();
             showSuccessModal('Password updated.');
           } else {
             showErrorModal('Failed to update password. ' + data.message);
@@ -534,7 +535,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
             url += '&fmt_packed=1';
             url += '&fmt_tpm=1';
 
-            url += '&rpId=auth.jakach.com';
+            url += '&rpId=auth.jakach.ch';
 			
             url += '&userId=' + encodeURIComponent(ascii_to_hex('<?php echo($_SESSION["username"]);?>'));
             url += '&userName=' + encodeURIComponent('<?php echo($_SESSION["username"]);?>');
