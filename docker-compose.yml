@@ -25,7 +25,7 @@ services:
     ports:
      # - "444:443"
      # - "80:443"
-       - "446:80"
+       - "447:80"
     depends_on:
       - jakach-login-db
     volumes:
