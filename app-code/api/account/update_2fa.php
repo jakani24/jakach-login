@@ -41,7 +41,7 @@ if($data->enable_2fa==true){
 	if ($update_stmt = $conn->prepare($sql)) {
             $update_stmt->bind_param("si", $twofa_secret, $id);
             if ($update_stmt->execute()) {
-                echo json_encode(['success' => true, 'message' => '2FA enabled. Your 2fa secret is: '.$twofa_secret.'']);
+                echo json_encode(['success' => true, 'message' => '2FA enabled. Your 2fa secret is: '.$twofa_secret.'', 'token' => $twofa_secret]);
             } else {
                 echo json_encode(['success' => false, 'message' => 'Failed to enable 2fa.']);
             }

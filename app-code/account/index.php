@@ -17,6 +17,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
   <?php  
     include "../assets/components.php";  
   ?>
+  <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> <!-- Google Material Icons -->
 </head>
 <body>
@@ -170,6 +171,25 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
         <div class="modal-body" id="errorModalMessage">
           <!-- Error message will go here -->
         </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- twofa Modal -->
+  <div class="modal fade" id="twofaModal" tabindex="-1" aria-labelledby="twofaModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="twofaModalLabel">Success</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="twofaModalMessage">
+          <!-- Success message will go here -->
+        </div>
+	<div id="qrcode"></div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         </div>
@@ -335,8 +355,12 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
         const result = await response.json();
         if (response.ok) {
           // Handle success
-          showSuccessModal(result.message || (isEnabled ? '2FA enabled successfully.' : '2FA disabled successfully.'));
-        } else {
+          if(isEnabled==false){
+		showSuccessModal(result.message || (isEnabled ? '2FA enabled successfully.' : '2FA disabled successfully.'));
+          }else{
+	  	show2FaModal(result.message, result.token);
+	  }
+	} else {
           // Handle error
           showErrorModal('Error: ' + (result.message || 'An error occurred while updating 2FA.'));
         }
@@ -395,6 +419,24 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
         const errorModal = new bootstrap.Modal(document.getElementById('successModal'));
         errorModal.show();
       }
+      function show2FaModal(message,secret) {
+        document.getElementById('twofaModalMessage').textContent = message;
+        const errorModal = new bootstrap.Modal(document.getElementById('twofaModal'));
+        generate2FAQRCode("Jakach Login",'<?php echo($_SESSION["username"]) ?>',secret);
+	errorModal.show();
+      }
+
+function generate2FAQRCode(issuer, accountName, secret) {
+    // Create the OTP URI
+    const uri = `otpauth://totp/${encodeURIComponent(issuer)}:${encodeURIComponent(accountName)}?secret=${secret}&issuer=${encodeURIComponent(issuer)}`;
+    
+    // Use qrcode.js to generate and display the QR code
+    new QRCode(document.getElementById("qrcode"), {
+        text: uri,
+        width: 300,
+        height: 300
+    });
+}
     //webauthn js
     
     async function createRegistration() {
