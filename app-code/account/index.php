@@ -252,6 +252,7 @@ if (!isset($_SESSION["logged_in"]) || $_SESSION["logged_in"] !== true) {
           if (data.success) {
             document.getElementById('user-name').textContent = updatedUser.name;
             document.getElementById('user-email').textContent = updatedUser.email;
+		showSuccessModal("Data updated");
           } else {
             showErrorModal('Failed to update user data. ' + data.message);
           }
