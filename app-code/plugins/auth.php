@@ -2,7 +2,7 @@
 /*
 This file can be installed in any service. If done so a user can authenticate with Jakach Auth. Jakach Auth will redirect the user here where their token gets validated, and then they can be logged in to your service.
 */
-
+session_start();
 $auth_token = $_GET["auth"];
 
 // Check the auth token against Jakach login API
